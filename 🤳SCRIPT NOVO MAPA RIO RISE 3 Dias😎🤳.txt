@@ -1,0 +1,1012 @@
+-- =======================================================
+-- CONFIGURAÇÕES INICIAIS E VARIÁVEIS GLOBAIS
+-- =======================================================
+local versao = "ódio Modz🇧🇷"
+local LoadTP = {} -- Inicializa a tabela vazia para evitar erro de nil
+local MAINLUA = 1
+local municao = 100 -- Valor padrão para evitar erro na função de armas
+
+-- Variáveis para controle de Posição
+local current_x = 0.0
+local current_y = 0.0
+local current_z = 0.0
+local isPositionFrozen = false
+local freeze_coords = {} -- Tabela para armazenar os endereços/valores a serem congelados
+-- =======================================================
+-- CONFIGURAÇÕES INICIAIS E VARIÁVEIS GLOBAIS
+-- =======================================================
+local versao = "Ódio Modz 🇧🇷"
+-- ... outras variáveis ...
+
+-- =======================================================
+-- CONFIGURAÇÕES INICIAIS E VARIÁVEIS GLOBAIS
+-- =======================================================
+local versao = "ódio Modz 🇧🇷"
+local LoadTP = {} -- Inicializa a tabela vazia para evitar erro de nil
+local MAINLUA = 1
+local municao = 100 -- Valor padrão para evitar erro na função de armas
+
+-- Variáveis para controle de Posição
+local current_x = 0.0
+-- ... (restante das variáveis de posição) ...
+
+-- Data e HORA de expiração da chave (formato: ano, mês, dia, hora, minuto)
+local anoValido = 2026
+local mesValido = 04
+local diaValido = 20
+local horaValida = 23 -- NOVO: Hora de expiração (Exemplo: 10h)
+local minutoValido =59 -- NOVO: Minuto de expiração (Exemplo: 30 minutos)
+
+-- Verifica a data atual do dispositivo
+local dataAtual = os.date("*t")
+
+-- ----------------------------------------------------
+-- NOVO BLOCO DE VERIFICAÇÃO DE EXPIRAÇÃO POR DATA/HORA
+-- ----------------------------------------------------
+
+-- Cria um objeto de tempo (timestamp) para a data e hora de expiração
+local tempoExpiracao = os.time({
+  year = anoValido,
+  month = mesValido,
+  day = diaValido,
+  hour = horaValida,
+  min = minutoValido,
+  sec = 0
+})
+
+-- Cria um objeto de tempo (timestamp) para a data e hora atual
+local tempoAtual = os.time(dataAtual)
+
+-- Verifica se a hora atual (tempoAtual) já ULTRAPASSOU o tempo de expiração
+if tempoAtual > tempoExpiracao then
+  gg.alert("Sua chave expirou em " 
+           .. string.format("%02d/%02d/%d às %02d:%02d", 
+               diaValido, mesValido, anoValido, horaValida, minutoValido) 
+           .. "!\n\nDeseja atualizar sua chave? entre em contato com (18)991266637 .")
+  os.exit()
+end
+
+
+-- Tela de login inicial
+local credenciais = gg.prompt(
+  {"LOGIN:", "SENHA:"},
+  {"LOGIN", "SENHA"},
+  {"number", "number"} 
+)
+
+-- Cancelado pelo usuário
+if credenciais == nil then
+  gg.alert("Cancelado pelo usuário. Saindo do script.")
+  os.exit()
+end
+
+-- Verificação Simples 
+if credenciais[1] ~= "50" or credenciais[2] ~= "50" then
+  gg.alert("Login ou senha incorretos❌! Encerrando script.")
+  os.exit()
+end
+
+local arch = gg.getTargetInfo().x64
+
+-- =======================================================
+-- FUNÇÕES BASE (SEARCH/GET/EDIT)
+-- =======================================================
+function getFloat(b)if b then gg.searchNumber(b,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;function getDouble(c)if c then gg.searchNumber(c,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;function getQword(d)if d then gg.searchNumber(d,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;function getXor(e)if e then gg.searchNumber(e,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;
+function SearchGet(f,g,h)if f and g and not h then h=g;g=nil end;if not f then f=gg.REGION_ANONYMOUS else function getRanges(i)if i then rangesIds={{"Jh","gg.REGION_JAVA_HEAP"},{"Ch","gg.REGION_C_HEAP"},{"Ca","gg.REGION_C_ALLOC"},{"Cd","gg.REGION_C_DATA"},{"Cb","gg.REGION_C_BSS"},{"PS","gg.REGION_PPSSPP"},{"A","gg.REGION_ANONYMOUS"},{"J","gg.REGION_JAVA"},{"S","gg.REGION_STACK"},{"As","gg.REGION_ASHMEM"},{"V","gg.REGION_VIDEO"},{"O","gg.REGION_OTHER"},{"B","gg.REGION_BAD"},{"Xa","gg.REGION_CODE_APP"},{"Xs","gg.REGION_CODE_SYS"}}returnRange=nil;for j,k in pairs(rangesIds)do if i:match("|")then if i:match(k[1].." ")or i:match(" "..k[1])then returnRange=returnRange or""returnRange=returnRange:gsub(k[1],k[2])break end else if i==k[1]then returnRange=k[2]break end end end;return returnRange end end;f=getRanges(f)if f then gg.setRanges(load("return "..f)())gg.clearResults()gg.setVisible(false)if g then flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for j,k in pairs(flagsIds)do if g==k[1]then g=k[2]end end;if type(g)=="number"then gg.searchNumber(h[1][1],g)count=gg.getResultCount()result=gg.getResults(count)gg.clearResults()data={}base=h[1][2]if count>0 then for j,k in ipairs(result)do k.isUseful=true end;for l=2,#h do tmp={}offset=h[l][2]-base;num=h[l][1]for j,k in ipairs(result)do tmp[#tmp+1]={address=k.address+offset,flags=k.flags}end;tmp=gg.getValues(tmp)for j,k in ipairs(tmp)do if tostring(k.value)~=tostring(num)then result[j].isUseful=false end end end;for j,k in ipairs(result)do if k.isUseful then data[#data+1]={address=k.address,flags=k.flags}end end;if#data>0 then gg.clearList()gg.clearResults()gg.loadResults(data)return data else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end else gg.alert("[ERROR]: flag não definida!")return end else flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for m,j in pairs(h)do for m,k in pairs(flagsIds)do if j[3]==k[1]then j[3]=k[2]end end;if type(h[1][3])~="number"then gg.alert("[ERROR]: flag não definida!")return end end;gg.searchNumber(h[1][1],f[3])count=gg.getResultCount()result=gg.getResults(count)gg.clearResults()data={}base=h[1][2]if count>0 then for j,k in ipairs(result)do k.isUseful=true end;for l=2,#h do tmp={}offset=h[l][2]-base;num=h[l][1]for j,k in ipairs(result)do tmp[#tmp+1]={address=k.address+offset,flags=h[l][3]}end;tmp=gg.getValues(tmp)for j,k in ipairs(tmp)do if tostring(k.value)~=tostring(num)then result[j].isUseful=false end end end;for j,k in ipairs(result)do if k.isUseful then data[#data+1]={address=k.address,flags=k.flags}end end;if#data>0 then gg.clearList()gg.clearResults()gg.loadResults(data)return data else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end end else gg.alert("[ERROR]: range não definida!")return end end end;
+function editGet(n,o,p)if n then if o then if p then flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for j,k in pairs(flagsIds)do if p==k[1]then p=k[2]end end;if type(p)=="number"then edits={}for m,k in pairs(o)do for m,j in pairs(n)do edits[#edits+1]={address=j.address+k[2],value=k[1],flags=p}end end;gg.setValues(edits)return edits else gg.alert("[ERROR]: flag não definida!")return end else flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for m,a in pairs(flagsIds)do for m,q in pairs(o)do if q[3]==a[1]then q[3]=a[2]end end end;if type(o[1][3])~="number"then gg.alert("[ERROR]: flag não definida!")return end;edits={}for m,k in pairs(o)do for m,j in pairs(n)do edits[#edits+1]={address=j.address+k[2],value=k[1],flags=k[3]}end end;gg.setValues(edits)return edits end end end end
+
+-- Função Loop Genérica
+function loop(fun, const)
+    gg.setVisible(true)
+    while true do
+        if gg.isVisible() then
+            gg.setVisible(false)
+            if fun then fun() end
+            break 
+        end
+        gg.sleep(100)
+    end
+end
+
+local arch = gg.getTargetInfo().x64
+
+--cod tabela china edu
+function getFloat(b)if b then gg.searchNumber(b,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;function getDouble(c)if c then gg.searchNumber(c,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;function getQword(d)if d then gg.searchNumber(d,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;function getXor(e)if e then gg.searchNumber(e,16)if gg.getResultsCount()>0 then a=tonumber(gg.getResults(gg.getResultsCount())[1].value)gg.clearResults()return a end end end;function SearchGet(f,g,h)if f and g and not h then h=g;g=nil end;if not f then f=gg.REGION_ANONYMOUS else function getRanges(i)if i then rangesIds={{"Jh","gg.REGION_JAVA_HEAP"},{"Ch","gg.REGION_C_HEAP"},{"Ca","gg.REGION_C_ALLOC"},{"Cd","gg.REGION_C_DATA"},{"Cb","gg.REGION_C_BSS"},{"PS","gg.REGION_PPSSPP"},{"A","gg.REGION_ANONYMOUS"},{"J","gg.REGION_JAVA"},{"S","gg.REGION_STACK"},{"As","gg.REGION_ASHMEM"},{"V","gg.REGION_VIDEO"},{"O","gg.REGION_OTHER"},{"B","gg.REGION_BAD"},{"Xa","gg.REGION_CODE_APP"},{"Xs","gg.REGION_CODE_SYS"}}returnRange=nil;for j,k in pairs(rangesIds)do if i:match("|")then if i:match(k[1].." ")or i:match(" "..k[1])then returnRange=returnRange or""returnRange=returnRange:gsub(k[1],k[2])break end else if i==k[1]then returnRange=k[2]break end end end;return returnRange end end;f=getRanges(f)if f then gg.setRanges(load("return "..f)())gg.clearResults()gg.setVisible(false)if g then flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for j,k in pairs(flagsIds)do if g==k[1]then g=k[2]end end;if type(g)=="number"then gg.searchNumber(h[1][1],g)count=gg.getResultCount()result=gg.getResults(count)gg.clearResults()data={}base=h[1][2]if count>0 then for j,k in ipairs(result)do k.isUseful=true end;for l=2,#h do tmp={}offset=h[l][2]-base;num=h[l][1]for j,k in ipairs(result)do tmp[#tmp+1]={address=k.address+offset,flags=k.flags}end;tmp=gg.getValues(tmp)for j,k in ipairs(tmp)do if tostring(k.value)~=tostring(num)then result[j].isUseful=false end end end;for j,k in ipairs(result)do if k.isUseful then data[#data+1]={address=k.address,flags=k.flags}end end;if#data>0 then gg.clearList()gg.clearResults()gg.loadResults(data)return data else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end else gg.alert("[ERROR]: flag não definida!")return end else flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for m,j in pairs(h)do for m,k in pairs(flagsIds)do if j[3]==k[1]then j[3]=k[2]end end;if type(h[1][3])~="number"then gg.alert("[ERROR]: flag não definida!")return end end;gg.searchNumber(h[1][1],f[3])count=gg.getResultCount()result=gg.getResults(count)gg.clearResults()data={}base=h[1][2]if count>0 then for j,k in ipairs(result)do k.isUseful=true end;for l=2,#h do tmp={}offset=h[l][2]-base;num=h[l][1]for j,k in ipairs(result)do tmp[#tmp+1]={address=k.address+offset,flags=h[l][3]}end;tmp=gg.getValues(tmp)for j,k in ipairs(tmp)do if tostring(k.value)~=tostring(num)then result[j].isUseful=false end end end;for j,k in ipairs(result)do if k.isUseful then data[#data+1]={address=k.address,flags=k.flags}end end;if#data>0 then gg.clearList()gg.clearResults()gg.loadResults(data)return data else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end else gg.toast("[ERROR]: não encontrou nenhum resultado na pesquisa.")end end else gg.alert("[ERROR]: range não definida!")return end end end;function editGet(n,o,p)if n then if o then if p then flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for j,k in pairs(flagsIds)do if p==k[1]then p=k[2]end end;if type(p)=="number"then edits={}for m,k in pairs(o)do for m,j in pairs(n)do edits[#edits+1]={address=j.address+k[2],value=k[1],flags=p}end end;gg.setValues(edits)return edits else gg.alert("[ERROR]: flag não definida!")return end else flagsIds={{"d",gg.TYPE_DWORD},{"f",gg.TYPE_FLOAT},{"e",gg.TYPE_DOUBLE},{"w",gg.TYPE_WORD},{"b",gg.TYPE_BYTE},{"q",gg.TYPE_QWORD},{"x",gg.TYPE_XOR}}for m,a in pairs(flagsIds)do for m,q in pairs(o)do if q[3]==a[1]then q[3]=a[2]end end end;if type(o[1][3])~="number"then gg.alert("[ERROR]: flag não definida!")return end;edits={}for m,k in pairs(o)do for m,j in pairs(n)do edits[#edits+1]={address=j.address+k[2],value=k[1],flags=k[3]}end end;gg.setValues(edits)return edits end end end end
+
+
+function loop(fun, const)
+    gg.setVisible(true)
+	while true do
+		if gg.isVisible() then
+			gg.setVisible(false)
+			if fun() == const then
+				break
+			end
+		end
+	end
+end
+
+-- ===== FUNÇÃO ADICIONADA =====
+function menuArmasMapNovo()
+    -- Primeiro carrega a base das armas se necessário
+    if not guns or #guns == 0 then
+        weaponbase()
+    end
+    
+    -- Verifica se carregou corretamente
+    if not guns or #guns == 0 then
+        gg.alert("Erro ao carregar armas. Tente novamente.")
+        Main()
+        return
+    end
+    
+    -- Chama o menu de armas que você já tem
+    weaponchanger()
+end
+-- ===== FIM DA FUNÇÃO ADICIONADA =====
+
+function Main()
+menu = gg.choice({
+                     
+                      "❤VIDA INFINITA❤",
+                      "🗺MENU ARMAS MAPA NOVO🔫",
+                      "🚘MENU VEÍCULOS🚘",
+                      "❌SAIR❌"}, nil,
+ "🗺SCRIPT PARA RIO RISE MAPA NOVO🗺\nOdio Modz 👨‍💻🇧🇷")
+
+
+
+  if menu == 1 then vida() end
+  if menu == 2 then menuArmasMapNovo() end
+  if menu == 3 then loop(menupremium,"prem") end
+  if menu == 4 then os.exit() end
+  MAINLUA = -1				
+end
+
+
+
+
+
+ 
+
+
+
+
+
+
+ function dados_local()
+   --Posição do player
+ player_position = {
+	{1158239360, 0},
+	{1154044736, 0x4},
+    {1148842240, 0x8},
+ }
+
+ a = SearchGet("Ca","d", player_position)
+
+ gg.addListItems(a)
+ gg.loadResults(gg.getListItems())
+ LoadTP = gg.getResults(100)
+ gg.toast("Carregado com sucesso")
+
+ end
+ 
+ 
+
+
+ function weaponchanger()
+   if not guns or #guns == 0 then
+      weaponbase() -- Carregar dados
+   end
+
+   if not guns or #guns == 0 then
+      gg.alert("Erro: LoadTP está vazio após tentar carregar.")
+      return
+   end
+
+   menu = gg.choice({
+      "《🗡️》《Armas Brancas》",
+      "《🔫》《Pistolas》",
+      "《🔫》《Espingardas》",
+      "《🔫》《Submetralhadoras》",
+      "《🔫》《Fuzis》", 
+      "《🔫》《Rifles》",
+      "《💣》《Pesadas》",
+      "《🎯》《Especiais》",
+      "《🧨》《Projéteis》",
+      "《📸》《Itens Especiais》",
+      "《🎁》《Presentes》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷PUXAR ARMAS🇧🇷")
+
+   if menu == 1 then loop(w_brancas, "brancas") end
+   if menu == 2 then loop(w_pistolas, "pts") end
+   if menu == 3 then loop(w_escopeta, "doze") end
+   if menu == 4 then loop(w_sub, "sub") end
+   if menu == 5 then loop(w_fuzis, "fuzis") end
+   if menu == 6 then loop(w_rifle, "rifle") end
+   if menu == 7 then loop(w_pesadas, "pesadas") end
+   if menu == 8 then loop(w_especiais, "esp") end
+   if menu == 9 then loop(w_projeteis, "proj") end
+   if menu == 10 then loop(w_itens, "itens") end
+   if menu == 11 then loop(w_presentes, "presentes") end
+   if menu == 12 then loop(Main, "Main") end
+
+   MAINLUA = -1
+end
+
+
+
+function w_brancas()
+   menu = gg.choice({
+      "《🔪》《Faca》",
+      "《🦯》《Cassetete》",
+      "《🗡️》《Katana》",
+      "《🏏》《Taco de Beisebol》",
+      "《⛳》《Taco de Golf》",
+      "《🪚》《Pá》",
+      "《🎱》《Taco de Sinuca》",
+      "《🪚》《Serrote》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷ARMAS BRANCAS🇧🇷")
+
+   if menu == 1 then faca() end
+   if menu == 2 then cassetete() end
+   if menu == 3 then katana() end
+   if menu == 4 then tacobeisebol() end
+   if menu == 5 then tacogolf() end
+   if menu == 6 then pa() end
+   if menu == 7 then tacosinuca() end
+   if menu == 8 then serrote() end
+   if menu == 9 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+
+function w_pistolas()
+   menu = gg.choice({
+      "《🔫》《Colt 45》",
+      "《🔫》《Pistola Silenciada》",
+      "《🔫》《Desert Eagle》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷PISTOLAS🇧🇷")
+
+   if menu == 1 then colt45() end
+   if menu == 2 then silenciada() end
+   if menu == 3 then eagle() end
+   if menu == 4 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+function w_escopeta()
+   menu = gg.choice({
+      "《🔫》《Espingarda》",
+      "《🔫》《Espingarda Serrada》",
+      "《🔫》《Espingarda de Combate》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷ESPINGARDAS🇧🇷")
+
+   if menu == 1 then esping() end
+   if menu == 2 then espingcerrada() end
+   if menu == 3 then espingdecombate() end
+   if menu == 4 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+function w_sub()
+   menu = gg.choice({
+      "《🔫》《Uzi》",
+      "《🔫》《Tec-9》",
+      "《🔫》《MP5》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷SUBMETRALHADORAS🇧🇷")
+
+   if menu == 1 then uzi() end
+   if menu == 2 then tec9() end
+   if menu == 3 then mp5() end
+   if menu == 4 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+function w_rifle()
+   menu = gg.choice({
+      "《🔫》《Rifle》",
+      "《🔫》《Sniper Rifle》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷RIFLES🇧🇷")
+
+   if menu == 1 then rifle() end
+   if menu == 2 then sniper() end
+   if menu == 3 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+function w_fuzis()
+   menu = gg.choice({
+      "《🔫》《AK-47》",
+      "《🔫》《M4》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷FUZIS🇧🇷")
+
+   if menu == 1 then ak47() end
+   if menu == 2 then m4() end
+   if menu == 3 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+
+function w_pesadas()
+   menu = gg.choice({
+      "《💣》《Lança-Foguetes》",
+      "《💣》《Lança-Chamas》",
+      "《💣》《Minigun》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷ARMAS PESADAS🇧🇷")
+
+   if menu == 1 then lancafoguete() end
+   if menu == 2 then lancachamas() end
+   if menu == 3 then minigun() end
+   if menu == 4 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+function w_especiais()
+   menu = gg.choice({
+      "《🎯》《Visão Noturna》",
+      "《🎯》《Visão Térmica》",
+      "《🪂》《Paraquedas》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷ITENS ESPECIAIS🇧🇷")
+
+   if menu == 1 then nightvision() end
+   if menu == 2 then thermalvision() end
+   if menu == 3 then paraquedas() end
+   if menu == 4 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+
+function w_projeteis()
+   menu = gg.choice({
+      "《💣》《Granada》",
+      "《💨》《Gás Lacrimogêneo》",
+      "《🔥》《Molotov》",
+      "《🧨》《Carga Explosiva (Satchel)》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷EXPLOSIVOS / PROJÉTEIS🇧🇷")
+
+   if menu == 1 then granada() end
+   if menu == 2 then lacrimogeno() end
+   if menu == 3 then molotov() end
+   if menu == 4 then satchel() end
+   if menu == 5 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+function w_especiais()
+   menu = gg.choice({
+      "《🧴》《Spray》",
+      "《🧯》《Extintor》",
+      "《📷》《Câmera》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷ITENS ESPECIAIS🇧🇷")
+
+   if menu == 1 then spray() end
+   if menu == 2 then extintor() end
+   if menu == 3 then camera() end
+   if menu == 4 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+function w_itens()
+   menu = gg.choice({
+      "《🧯》《Spray de Tinta》",
+      "《🧯》《Extintor de Incêndio》",
+      "《📸》《Câmera》",
+      "《↩️》Voltar"
+   }, nil, "🇧🇷ITENS ESPECIAIS🇧🇷")
+
+   if menu == 1 then spray() end
+   if menu == 2 then extintor() end
+   if menu == 3 then camera() end
+   if menu == 4 then loop(weaponchanger, "back") end
+
+   MAINLUA = -1
+end
+
+
+function w_presentes()
+   menu = gg.choice({
+      "《🍆》《Dildo》",
+      "《🍆》《Dildo 2》",
+      "《🔋》《Vibrador》",
+      "《🌹》《Flores》",
+      "《🦯》《Bengala》",
+      "《↩️》Voltar"
+   }, nil, "🎁 MENU DE PRESENTES 🎁")
+
+   if menu == 1 then dildo1() end
+   if menu == 2 then dildo2() end
+   if menu == 3 then vibrador() end
+   if menu == 4 then flores() end
+   if menu == 5 then bengala() end
+   if menu == 6 then loop(weaponchanger, "wpc") end
+
+   MAINLUA = -1
+end
+
+
+
+
+
+
+ function weaponbase()
+
+   weapon_base = {
+     {99999.9921875, 0}
+   }
+  
+   wp = SearchGet("Ca","f", weapon_base)
+  
+   gg.addListItems(wp)
+   gg.loadResults(gg.getListItems())
+   guns = gg.getResults(100)
+   gg.toast("Carregado com sucesso")
+  
+end
+
+
+
+
+local weapon = {
+
+   -- Pistolas
+   colt45_w        = {{22, 0x70},  {346, 0x78},  {99999, 0x7C,  true}},
+   silenciada_w    = {{23, 0x70},  {347, 0x78},  {99999, 0x7C,  true}},
+   eagle_w         = {{24, 0x70},  {348, 0x78},  {99999, 0x7C,  true}},
+
+   -- Escopetas
+   espingarda_w         = {{25, 0x90},  {349, 0x98},  {99999, 0x9C,  true}},
+   espingardacerrada_w  = {{26, 0x90},  {350, 0x98},  {99999, 0x9C,  true}},
+   espingardadcombate_w = {{27, 0x90},  {351, 0x98},  {99999, 0x9C,  true}},
+
+   -- Submetralhadoras
+   uzi_w           = {{28, 0xB0},  {352, 0xB8},  {99999, 0xBC,  true}},
+   mp5_w           = {{29, 0xB0},  {353, 0xB8},  {99999, 0xBC,  true}},
+   tec9_w          = {{32, 0xB0},  {354, 0xB8},  {99999, 0xBC,  true}},
+
+   -- Rifles
+   rifle_w         = {{33, 0xF0},  {355, 0xF8},  {99999, 0xFC,  true}},
+   sniper_w        = {{34, 0xF0},  {356, 0xF8},  {99999, 0xFC,  true}},
+
+   -- Fuzil de assalto
+   ak47_w          = {{30, 0xD0},  {355, 0xD8},  {99999, 0xDC,  true}},
+   m4_w            = {{31, 0xD0},  {356, 0xD8},  {99999, 0xDC,  true}},
+
+   -- Armas Pesadas
+   rpg_w           = {{35, 0x110}, {357, 0x118}, {99999, 0x11C, true}},
+   heatseeker_w    = {{36, 0x110}, {358, 0x118}, {99999, 0x11C, true}},
+   lanca_chamas_w  = {{37, 0x110}, {359, 0x118}, {99999, 0x11C, true}},
+   minigun_w       = {{38, 0x110}, {360, 0x118}, {99999, 0x11C, true}},
+
+   -- Armas Brancas
+   faca_w          = {{4,  0x50},  {335, 0x58},  {99999, 0x5C,  true}},
+   cassetete_w     = {{3,  0x50},  {334, 0x58},  {99999, 0x5C,  true}},
+   katana_w        = {{8,  0x50},  {339, 0x58},  {99999, 0x5C,  true}},
+   tacobeisebol_w  = {{5,  0x50},  {336, 0x58},  {99999, 0x5C,  true}},
+   tacogolf_w      = {{2,  0x50},  {333, 0x58},  {99999, 0x5C,  true}},
+   pa_w            = {{6,  0x50},  {337, 0x58},  {99999, 0x5C,  true}},
+   tacosinuca_w    = {{7,  0x50},  {338, 0x58},  {99999, 0x5C,  true}},
+   serrote_w       = {{9,  0x50},  {340, 0x58},  {99999, 0x5C,  true}},
+
+   -- Visores Especiais
+   nightvision_w   = {{44, 0x190}, {368, 0x198}, {99999, 0x19C, true}},
+   thermalvision_w = {{45, 0x190}, {369, 0x198}, {99999, 0x19C, true}},
+   paraquedas_w    = {{46, 0x190}, {370, 0x198}, {99999, 0x19C, true}},
+
+   -- Explosivos / Projéteis
+   granada_w       = {{16, 0x130}, {361, 0x138}, {99999, 0x13C, true}},
+   acrimogeno_w    = {{17, 0x130}, {362, 0x138}, {99999, 0x13C, true}},
+   molotov_w       = {{18, 0x130}, {363, 0x138}, {99999, 0x13C, true}},
+   satchel_w       = {{39, 0x130}, {364, 0x138}, {99999, 0x13C, true}},
+
+   -- Itens Especiais
+   spray_w         = {{41, 0x150}, {365, 0x158}, {99999, 0x15C, true}},
+   extintor_w      = {{42, 0x150}, {366, 0x158}, {99999, 0x15C, true}},
+   camera_w        = {{43, 0x150}, {367, 0x158}, {99999, 0x15C, true}},
+
+   -- Presentes
+   dildo1_w        = {{10, 0x170}, {341, 0x178}, {99999, 0x17C, true}},
+   dildo2_w        = {{11, 0x170}, {342, 0x178}, {99999, 0x17C, true}},
+   vibrador_w      = {{12, 0x170}, {343, 0x178}, {99999, 0x17C, true}},
+   flores_w        = {{14, 0x170}, {344, 0x178}, {99999, 0x17C, true}},
+   bengala_w       = {{15, 0x170}, {345, 0x178}, {99999, 0x17C, true}}
+}
+
+ 
+
+-- Armas Brancas
+function faca() editGet(guns, weapon.faca_w, "d") end
+function cassetete() editGet(guns, weapon.cassetete_w, "d") end
+function katana() editGet(guns, weapon.katana_w, "d") end
+function tacobeisebol() editGet(guns, weapon.tacobeisebol_w, "d") end
+function tacogolf() editGet(guns, weapon.tacogolf_w, "d") end
+function pa() editGet(guns, weapon.pa_w, "d") end
+function tacosinuca() editGet(guns, weapon.tacosinuca_w, "d") end
+function serrote() editGet(guns, weapon.serrote_w, "d") end
+
+-- Pistolas
+function colt45() editGet(guns, weapon.colt45_w, "d") end
+function silenciada() editGet(guns, weapon.silenciada_w, "d") end
+function eagle() editGet(guns, weapon.eagle_w, "d") end
+
+-- Escopetas
+function esping() editGet(guns, weapon.espingarda_w, "d") end
+function espingcerrada() editGet(guns, weapon.espingardacerrada_w, "d") end
+function espingdecombate() editGet(guns, weapon.espingardadcombate_w, "d") end
+
+-- Submetralhadoras
+function uzi() editGet(guns, weapon.uzi_w, "d") end
+function tec9() editGet(guns, weapon.tec9_w, "d") end
+function mp5() editGet(guns, weapon.mp5_w, "d") end
+
+-- Rifles
+function rifle() editGet(guns, weapon.rifle_w, "d") end
+function sniper() editGet(guns, weapon.sniper_w, "d") end
+
+-- Fuzis
+function ak47() editGet(guns, weapon.ak47_w, "d") end
+function m4() editGet(guns, weapon.m4_w, "d") end
+
+-- Pesadas
+function lancafoguete() editGet(guns, weapon.lancafoguetes_w, "d") end
+function lancachamas() editGet(guns, weapon.lancachamas_w, "d") end
+function minigun() editGet(guns, weapon.minigun_w, "d") end
+
+-- Especiais
+function nightvision() editGet(guns, weapon.visaonoturna_w, "d") end
+function thermalvision() editGet(guns, weapon.visaotermal_w, "d") end
+function paraquedas() editGet(guns, weapon.paraquedas_w, "d") end
+
+
+function granada() editGet(guns, weapon.granada_w, "d") end
+function lacrimogeno() editGet(guns, weapon.lacrimogeno_w, "d") end
+function molotov() editGet(guns, weapon.molotov_w, "d") end
+function satchel() editGet(guns, weapon.satchel_w, "d") end
+
+
+function spray() editGet(guns, weapon.spray_w, "d") end
+function extintor() editGet(guns, weapon.extintor_w, "d") end
+function camera() editGet(guns, weapon.camera_w, "d") end
+
+function dildo1() editGet(guns, weapon.dildo1_w, "d") end
+function dildo2() editGet(guns, weapon.dildo2_w, "d") end
+function vibrador() editGet(guns, weapon.vibrador_w, "d") end
+function flores() editGet(guns, weapon.flores_w, "d") end
+function bengala() editGet(guns, weapon.bengala_w, "d") end
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+
+local vida_local = nil  -- Variável para armazenar o endereço da vida
+
+function vida()
+    -- Criar um prompt para definir o valor da vida
+    local input = gg.prompt({"Defina o valor da vida:"}, {999}, {"number"})
+   
+    if input == nil then
+        gg.toast("Operação cancelada")
+        return
+    end
+    
+    local valor_vida = tonumber(input[1])
+    
+    if valor_vida == nil or valor_vida <= 0 then
+        gg.toast("Valor inválido")
+        return
+    end
+    
+    -- Ajustar a quantidade elegível de vida estipulada
+    local vida_maxima = 99999  -- Definir um limite máximo
+    if valor_vida > vida_maxima then
+        valor_vida = vida_maxima
+        gg.toast("Valor ajustado para o máximo permitido: " .. vida_maxima)
+    end
+    
+    -- Definir valor base de vida a ser pesquisado
+    local vida_base = 99999.9921875 -- Valor base esperado no jogo
+    
+    if vida_local == nil then
+        -- Aumentar HP com base na entrada do usuário
+        local vida_inf = {
+            {vida_base, 0}, 
+        }
+        
+        vida_local = SearchGet("Ca", "f", vida_inf)  -- Armazena o endereço encontrado
+    end
+    
+    if vida_local then
+        local vida_edit = {
+            {valor_vida, -0x54}, -- Aplicando o novo valor de vida
+        }
+        
+        editGet(vida_local, vida_edit, "f")
+        gg.toast("Vida ajustada com sucesso! Novo valor: " .. valor_vida)
+    else
+        gg.toast("Erro ao encontrar o endereço da vida.")
+    end
+end
+
+
+
+function setFloat(address, value, message)
+   gg.setValues({{address = address, flags = gg.TYPE_FLOAT, value = value}})
+   gg.toast(message)
+end
+
+gg.setRanges(gg.REGION_JAVA_HEAP | gg.REGION_C_HEAP | gg.REGION_C_ALLOC | gg.REGION_C_DATA | gg.REGION_C_BSS | gg.REGION_PPSSPP | gg.REGION_ANONYMOUS | gg.REGION_OTHER | gg.REGION_CODE_APP | gg.REGION_CODE_SYS)
+
+function menupremium()
+   local mainMenu = gg.choice({
+       "🚗MENU VEÍCULOS🚗",
+       "↩VOLTAR↩"
+   }, nil, versao)
+
+   if mainMenu == 1 then loop(menuVeiculos,"vei") end
+   if mainMenu == 2 then loop(Main,"ma") end
+end
+
+
+
+-- MENU VEÍCULOS
+function menuVeiculos()
+   local veiculosMenu = gg.choice({
+       "🚗AIM KILL🚗",
+       "🚗LATARIA INFINITA🚗",
+       "🚗QUEBRAR VEÍCULOS🚗",
+       "🚗💨SPEED VEÍCULOS🚗💨",
+       "↩️VOLTAR↩" 
+   }, nil, "🗺SCRIPT PARA RIO RISE MAPA NOVO🗺\n🔰💎DARCK HG SCRIPTS💎🔰")
+
+   if veiculosMenu == 1 then aimkillcarro() end
+   if veiculosMenu == 2 then latariainf() end
+   if veiculosMenu == 3 then quebrarveiculo() end
+   if veiculosMenu == 4 then speedveiculo() end
+   if veiculosMenu == 5 then loop(menupremium,"prin") end
+end
+
+
+function speedveiculo()
+   local speedspeedveiculoMenu = gg.choice({
+       "🚗💨SPEED VEÍCULOS🚗💨",
+       "🚗💨SPEED VEÍCULOS🚗💨",
+       "🚗💨SPEED VEÍCULOS🚗💨",
+       "🚗💨SPEED VEÍCULOS🚗💨",
+       "❌ Desativar Speed Hack ❌"
+   }, nil, "🗺SCRIPT PARA RIO RISE MAPA NOVO🗺\n🔰💎DARCK HG SCRIPTS💎🔰\n🔥Marcos Jr🔥")
+
+       if speedspeedveiculoMenu == 1 then
+           ativarspeedveiculo(2)
+       elseif speedspeedveiculoMenu == 2 then
+           ativarspeedveiculo(4)
+       elseif speedspeedveiculoMenu == 3 then
+           ativarspeedveiculo(6)
+       elseif speedspeedveiculoMenu == 4 then
+           ativarspeedveiculo(8)
+       elseif speedspeedveiculoMenu == 5 then
+           ativarspeedveiculo(1)
+       end
+     end
+   
+   
+   
+   -- Módulo de cache para velocidade de veículo
+local vehicleSpeedCache = {
+   addresses = nil,
+   lastSpeedValue = nil,
+   lastTargetValue = nil
+}
+
+-- Configurações
+local speedSettings = {
+   maxResults = 100,          -- Limite de resultados para evitar sobrecarga
+   searchRange = 64,          -- Intervalo para modificar (em bytes)
+   freezeEnabled = true,      -- Congelar valores por padrão
+   validationThreshold = 0.1  -- Margem para validação de valores
+}
+
+-- Função para validar e preparar os endereços
+local function prepareSpeedAddresses(targetValue, newSpeed)
+   gg.clearResults()
+   gg.searchNumber(targetValue, gg.TYPE_FLOAT)
+   
+   local results = gg.getResults(speedSettings.maxResults)
+   if #results == 0 then
+       return nil, "Nenhum valor encontrado!"
+   end
+   
+   -- Filtrar resultados válidos
+   local validAddresses = {}
+   for _, result in ipairs(results) do
+       if math.abs(result.value - targetValue) < speedSettings.validationThreshold then
+           table.insert(validAddresses, result.address + speedSettings.searchRange)
+       end
+   end
+   
+   if #validAddresses == 0 then
+       return nil, "Nenhum endereço válido encontrado!"
+   end
+   
+   return validAddresses
+end
+
+-- Função principal para ativar/modificar speed
+function ativarspeedveiculo(velocidadespeedveiculo)
+   -- Validação do input
+   if type(velocidadespeedveiculo) ~= "number" or velocidadespeedveiculo <= 0 then
+       gg.toast("ERRO: Velocidade deve ser um número positivo!")
+       return false
+   end
+
+   local targetValue = "479320161982472000000000"
+   
+   -- Verificar se podemos usar o cache
+   if vehicleSpeedCache.addresses and vehicleSpeedCache.lastTargetValue == targetValue then
+       -- Atualizar valores usando cache
+       local updateList = {}
+       for _, addr in ipairs(vehicleSpeedCache.addresses) do
+           table.insert(updateList, {
+               address = addr,
+               flags = gg.TYPE_FLOAT,
+               value = velocidadespeedveiculo,
+               freeze = speedSettings.freezeEnabled
+           })
+       end
+       
+       gg.setValues(updateList)
+       if speedSettings.freezeEnabled then
+           gg.addListItems(updateList)
+       end
+       
+       vehicleSpeedCache.lastSpeedValue = velocidadespeedveiculo
+       gg.toast(string.format("Velocidade atualizada para %.1f", velocidadespeedveiculo))
+       gg.clearResults()
+       return true
+   end
+
+   -- Pesquisa necessária
+   local addresses, err = prepareSpeedAddresses(targetValue, velocidadespeedveiculo)
+   if not addresses then
+       gg.toast(err)
+       return false
+   end
+
+   -- Preparar lista de modificação
+   local modifyList = {}
+   for _, addr in ipairs(addresses) do
+       table.insert(modifyList, {
+           address = addr,
+           flags = gg.TYPE_FLOAT,
+           value = velocidadespeedveiculo,
+           freeze = speedSettings.freezeEnabled
+       })
+   end
+
+   -- Aplicar mudanças
+   gg.setValues(modifyList)
+   if speedSettings.freezeEnabled then
+       gg.addListItems(modifyList)
+   end
+
+   -- Atualizar cache
+   vehicleSpeedCache.addresses = addresses
+   vehicleSpeedCache.lastSpeedValue = velocidadespeedveiculo
+   vehicleSpeedCache.lastTargetValue = targetValue
+
+   gg.toast(string.format("Speed veicular ativado: %.1f 🚗💨", velocidadespeedveiculo))
+   gg.clearResults()
+   return true
+end
+
+-- Função para desativar o speed
+function desativarspeedveiculo()
+   if not vehicleSpeedCache.addresses then
+       gg.toast("Nenhum speed ativo para desativar")
+       return
+   end
+
+   -- Remover itens congelados
+   gg.removeListItems(gg.getListItems())
+   vehicleSpeedCache.addresses = nil
+   vehicleSpeedCache.lastSpeedValue = nil
+   gg.toast("Speed veicular desativado 🚗✋")
+   gg.clearResults()
+   return true
+end
+
+-- Função para ajustar configurações
+function configSpeedVeiculo(opcoes)
+   if opcoes.maxResults then
+       speedSettings.maxResults = math.min(math.max(opcoes.maxResults, 1), 5000)
+   end
+   if opcoes.searchRange then
+       speedSettings.searchRange = opcoes.searchRange
+   end
+   if opcoes.freezeEnabled ~= nil then
+       speedSettings.freezeEnabled = opcoes.freezeEnabled
+   end
+   
+   gg.toast("Configurações de speed atualizadas")
+end
+
+
+
+
+-- Cache para lataria de carro
+local latariaCache = {
+   addresses = nil,
+   lastTarget = "1.18920695781708",
+   lastValue = nil
+}
+
+-- Função principal otimizada
+function editarlatariadocarro(valordalataria)
+   -- Validação do input
+   if type(valordalataria) ~= "number" then
+       gg.toast("⚠️ Valor inválido! Use um número")
+       return false
+   end
+
+   -- Se já temos cache, apenas atualiza
+   if latariaCache.addresses then
+       local edits = {}
+       for i, addr in ipairs(latariaCache.addresses) do
+           edits[i] = {
+               address = addr,
+               flags = gg.TYPE_FLOAT,
+               value = valordalataria
+           }
+       end
+       gg.setValues(edits)
+       latariaCache.lastValue = valordalataria
+       gg.toast(string.format("🚗 Lataria: %.2f", valordalataria))
+       gg.clearResults()
+       return true
+   end
+
+   -- Busca inicial
+   gg.clearResults()
+   gg.searchNumber(latariaCache.lastTarget, gg.TYPE_FLOAT)
+   
+   local results = gg.getResults(5000)
+   if #results == 0 then
+       gg.toast("❌ Valor base não encontrado!")
+       return false
+   end
+
+   -- Armazena endereços (offset +1020)
+   latariaCache.addresses = {}
+   for i, result in ipairs(results) do
+       latariaCache.addresses[i] = result.address + 1020
+   end
+
+   -- Aplica edições
+   local edits = {}
+   for i, addr in ipairs(latariaCache.addresses) do
+       edits[i] = {
+           address = addr,
+           flags = gg.TYPE_FLOAT,
+           value = valordalataria
+       }
+   end
+   gg.setValues(edits)
+   latariaCache.lastValue = valordalataria
+   
+   gg.toast(string.format("🚗 Lataria modificada: %.2f", valordalataria))
+   gg.clearResults()
+   return true
+end
+
+-- Reset de cache
+function resetLatariaCache()
+   latariaCache.addresses = nil
+   gg.toast("🔄 Cache de lataria resetado")
+end
+
+-- Exemplo de uso:
+-- editarlatariadocarro(10000000000)  -- Valor alto para efeitos visuais
+-- editarlatariadocarro(1.0)          -- Volta ao normal
+-- resetLatariaCache()                -- Força nova busca
+
+
+
+
+
+
+
+
+
+
+function aimkillcarro()
+   local aimkillcarroonoff = gg.choice({"🚗Ativar", "🚗Desativar", "◀️Voltar"}, nil, versao)
+   if aimkillcarroonoff == nil then
+       gg.toast("Nenhuma opção selecionada")
+       return
+   end
+
+   if aimkillcarroonoff == 1 then aimkillcarroon() end
+   if aimkillcarroonoff == 2 then aimkillcarrooff() end
+   if aimkillcarroonoff == 3 then loop(menupremium,"prin") end
+end
+
+function aimkillcarroon()
+   editarlatariadocarro(10000000000)
+end
+
+function aimkillcarrooff()
+   editarlatariadocarro(1000)
+end
+
+
+-- Lataria infinita
+function latariainf()
+latariainfonoff = gg.choice({"🚗Ativar", "🚗Desativar", "◀️Voltar"}, nil, versao)
+   if latariainfonoff == 1 then latariainfon() end
+   if latariainfonoff == 2 then latariainfoff() end
+   if latariainfonoff == 3 then loop(menupremium,"prin") end
+end
+
+function latariainfon()
+   editarlatariadocarro(999999)
+end
+
+function latariainfoff()
+   editarlatariadocarro(1000)
+end
+
+
+function quebrarveiculo()
+   editarlatariadocarro(0)
+   end
+
+
+
+
+
+
+
+-- Criadores
+function criadores()
+    gg.alert("👨🏻‍💻CRIADORES DA SCRIPTS:\n🔰💎DARCK HG SCRIPTS💎🔰")
+end
+
+-- Sair
+function exit()
+    gg.alert("Script finalizada com sucesso, Obrigado por adquirir e usar nossas scripts, até mais ❤️!")
+    os.exit()
+end
+
+-- Loop principal
+while true do
+    if gg.isVisible(true) then
+        MAINLUA = 1
+        gg.setVisible(false)
+        gg.clearResults()
+    end
+    if MAINLUA == 1 then
+        Main()
+    end
+end
